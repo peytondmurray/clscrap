@@ -1,12 +1,12 @@
 from bs4 import BeautifulSoup
 import requests, datetime, tqdm
-from yaml import load, dump
+from yaml import load
 from trello import TrelloClient
 
 
-def load_config():
+def load_config(configfile):
 
-	with open("config.yaml", 'r') as f:
+	with open(configfile, 'r') as f:
 		config = load(f)
 	url = config["url"]
 	terms = config["terms"]
@@ -57,7 +57,7 @@ def search_ads(ads, terms):
 	print("Found {} hits.".format(len(hits)))
 	return hits
 
-def connect_trello(api_key, api_secret, oauth_token, oauth_secret, verbose=True):
+def connect_trello(api_key, api_secret, oauth_token, oauth_secret, verbose=False):
 	client = TrelloClient(
 		api_key=api_key,
 		api_secret=api_secret,
@@ -82,7 +82,9 @@ def get_list_id(board, target_list):
 	return ValueError("List: {} does not exist".format(target_list))
 
 def add_hit_to_list(hit,trello_unreviewed_list, trello_unreviewed_cards, trello_reviewed_cards):
-
+	if (hit["href"] not in [card.desc for card in trello_reviewed_cards]) and (hit["href"] not in [card.desc for card in trello_unreviewed_cards]):
+		trello_unreviewed_list.add_card("{} : {} ".format(hit["date"],hit["title"]),desc=hit["href"])
+	return
 
 def update_board(client, hits, target_board=None, unreviewed_list="Unreviewed Ads", reviewed_list="Reviewed Ads"):
 	board_id = get_board_id(client, target_board)
@@ -94,19 +96,16 @@ def update_board(client, hits, target_board=None, unreviewed_list="Unreviewed Ad
 	trello_reviewed_cards = trello_reviewed_list.list_cards()
 
 	for hit in tqdm.tqdm(hits, desc="Updating Trello board..."):
-		for card in trello_reviewed_cards:
-			if card.desc == hit["href"]:
-				continue
-			else:
-
-		trello_unreviewed_list.add_card("{} : {} ".format(hit["date"],hit["title"]),desc=hit["href"])
+		add_hit_to_list(hit, trello_unreviewed_list, trello_unreviewed_cards, trello_reviewed_cards)
 
 	return
 
 if __name__ == "__main__":
-	url, terms, start_date, api_key, api_secret, oauth_token, oauth_secret, board_name = load_config()
-	client = connect_trello(api_key=api_key, api_secret=api_secret, oauth_token=oauth_token, oauth_secret=oauth_secret)
-	ads = get_ads_since_date(url, start_date)
-	hits = search_ads(ads, terms)
-	update_board(client, hits, target_board="bikes")
+	config_files = ["config.yaml", "config2.yaml"]
+	for fname in config_files:
+		url, terms, start_date, api_key, api_secret, oauth_token, oauth_secret, board_name = load_config(fname)
+		client = connect_trello(api_key=api_key, api_secret=api_secret, oauth_token=oauth_token, oauth_secret=oauth_secret)
+		ads = get_ads_since_date(url, start_date)
+		hits = search_ads(ads, terms)
+		update_board(client, hits, target_board=board_name)
 	print("Trello has been updated.")
