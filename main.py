@@ -3,7 +3,7 @@ import requests, datetime, tqdm, os, logging
 from yaml import load
 from trello import TrelloClient
 
-logging.basicConfig(filename="main.log", level=logging.INFO)
+logging.basicConfig(filename=os.path.join(base,"main.log"), level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def load_config(configfile):
