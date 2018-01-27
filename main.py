@@ -100,7 +100,7 @@ def update_board(client, hits, target_board=None, unreviewed_list="Unreviewed Ad
 	return
 
 if __name__ == "__main__":
-	base = os.path.realpath(__file__)
+	base = os.path.split(os.path.realpath(__file__))[0]
 	config_files = [os.path.join(base,fname) for fname in ["config.yaml", "config2.yaml"]]
 	for fname in config_files:
 		url, terms, start_date, api_key, api_secret, oauth_token, oauth_secret, board_name = load_config(fname)
