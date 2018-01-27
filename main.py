@@ -1,8 +1,7 @@
 from bs4 import BeautifulSoup
-import requests, datetime, tqdm
+import requests, datetime, tqdm, os
 from yaml import load
 from trello import TrelloClient
-
 
 def load_config(configfile):
 
@@ -101,7 +100,8 @@ def update_board(client, hits, target_board=None, unreviewed_list="Unreviewed Ad
 	return
 
 if __name__ == "__main__":
-	config_files = ["config.yaml", "config2.yaml"]
+	base = os.path.realpath(__file__)
+	config_files = [os.path.join(base,fname) for fname in ["config.yaml", "config2.yaml"]]
 	for fname in config_files:
 		url, terms, start_date, api_key, api_secret, oauth_token, oauth_secret, board_name = load_config(fname)
 		client = connect_trello(api_key=api_key, api_secret=api_secret, oauth_token=oauth_token, oauth_secret=oauth_secret)
