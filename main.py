@@ -1,7 +1,10 @@
 from bs4 import BeautifulSoup
-import requests, datetime, tqdm, os
+import requests, datetime, tqdm, os, logging
 from yaml import load
 from trello import TrelloClient
+
+logging.basicConfig(filename="main.log", level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def load_config(configfile):
 
@@ -109,3 +112,4 @@ if __name__ == "__main__":
 		hits = search_ads(ads, terms)
 		update_board(client, hits, target_board=board_name)
 	print("Trello has been updated.")
+	logger.info("CL search completed at {}".format(datetime.datetime.now()))
