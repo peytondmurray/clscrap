@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-import requests, datetime, tqdm, os, logging
+import requests, datetime, tqdm, os, logging, time
 from yaml import load
 from trello import TrelloClient
 
@@ -43,6 +43,8 @@ def get_ads_since_date(url, start_date):
 			ads.append({"date":date,
 						"title":result.find("a", {"class":"result-title"}).text,
 						"href":result.find("a", {"class":"result-title"})["href"]})
+		
+		time.sleep(2)	#Avoid making tons of repeated requests to remote server. Being aggressive gets you blocked.
 
 		ad_number += len(results)
 
