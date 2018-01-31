@@ -26,8 +26,8 @@ def get_ads_since_date(url, start_date):
 	ads = []
 	earliest_date = datetime.date.today()
 	ad_number = 0
-
-	while earliest_date > start_date:
+	
+	while (earliest_date > start_date):
 		print("Searching {}{}".format(url,ad_number))
 		response = requests.get("{}{}".format(url,ad_number))
 		data = response.text
@@ -47,6 +47,9 @@ def get_ads_since_date(url, start_date):
 		time.sleep(2)	#Avoid making tons of repeated requests to remote server. Being aggressive gets you blocked.
 
 		ad_number += len(results)
+		
+		if len(results) == 0:
+			break
 
 	ads = [ad for ad in ads if ad["date"] >= start_date]
 	print("Found {} ads since {}.".format(len(ads), start_date.isoformat()))
